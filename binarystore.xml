@@ -1,0 +1,50 @@
+<!– The S3 binary provider configuration –>
+<config version="2">
+    <chain>
+        <provider id="cache-fs-eventual-s3" type="cache-fs">
+            <provider id="sharding-cluster-eventual-s3" type="sharding-cluster">
+                <sub-provider id="eventual-cluster-s3" type="eventual-cluster">
+                    <provider id="retry-s3" type="retry">
+                        <provider id="s3" type="s3"/>
+                    </provider>
+                </sub-provider>
+                <dynamic-provider id="remote-s3" type="remote"/>
+            </provider>
+        </provider>
+    </chain>
+
+    <provider id="cache-fs-eventual-s3" type="cache-fs">
+        <!– The maximum size of the cache in bytes:  100 gig –>
+        <maxCacheSize>100000000000</maxCacheSize>
+        <cacheProviderDir>cache</cacheProviderDir>
+    </provider>
+
+    <provider id="sharding-cluster-eventual-s3" type="sharding-cluster">
+        <readBehavior>crossNetworkStrategy</readBehavior>
+        <writeBehavior>crossNetworkStrategy</writeBehavior>
+        <redundancy>1</redundancy>
+        <property name="zones" value="local,remote"/>
+    </provider>
+
+    <provider id="eventual-cluster-s3" type="eventual-cluster">
+        <zone>local</zone>
+    </provider>
+
+    <provider id="retry-s3" type="retry">
+        <maxTrys>10</maxTrys>
+    </provider>
+
+    <provider id="s3" type="s3">
+        <credential>{{ S3_CREDENTIALS }}</credential>
+        <identity>{{ S3_IDENTITY }}</identity>
+        <endpoint>s3.amazonaws.com</endpoint>
+        <bucketName>{{ S3_BUCKET_NAME }}</bucketName>
+        <httpsOnly>true</httpsOnly>
+        <property name="s3service.disable-dns-buckets" value="true"></property>
+        <property name="httpclient.max-connections" value="300"></property>
+    </provider>
+
+    <provider id="remote-s3" type="remote">
+        <zone>remote</zone>
+    </provider>
+</config>

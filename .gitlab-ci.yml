@@ -1,0 +1,12 @@
+stages:
+  - deploy
+
+deploy_staging:
+  stage: deploy
+  script:
+    - export AWS_ACCESS_KEY_ID=${STAGING_AWS_ACCESS_KEY_ID}
+    - export AWS_SECRET_ACCESS_KEY=${STAGING_AWS_SECRET_ACCESS_KEY}
+    - terraform init -backend-config "region=${STAGING_AWS_REGION}"
+    - terraform plan -var "aws_region=${STAGING_AWS_REGION}" -var "environment=${ENVIRONMENT}"
+    - terraform apply --auto-approve -var "aws_region=${STAGING_AWS_REGION}" -var "environment=${ENVIRONMENT}"
+
